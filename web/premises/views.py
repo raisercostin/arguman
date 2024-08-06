@@ -94,10 +94,10 @@ class ContentionDetailView(DetailView):
         self.object = self.get_object()
         host = request.META['HTTP_HOST']
 
-        if not host.startswith(settings.AVAILABLE_LANGUAGES):
+        if not settings.PREVENT_LANGUAGE_REDIRECTION and not host.startswith(settings.AVAILABLE_LANGUAGES):
             return redirect(self.object.get_full_url(), permanent=True)
 
-        if not normalize_language_code(get_language()) == self.object.language:
+        if not settings.PREVENT_LANGUAGE_REDIRECTION and not normalize_language_code(get_language()) == self.object.language:
             return redirect(self.object.get_full_url(), permanent=True)
 
         partial = request.GET.get('partial')
@@ -661,7 +661,7 @@ class ArgumentUnpublishView(LoginRequiredMixin, DetailView):
         contention = self.get_object()
         contention.is_published = False
         contention.save()
-        messages.info(request, u"Argüman yayından kaldırıldı.")
+        messages.info(request, u"Argument is unpublished now.")
         return redirect(contention)
 
 

@@ -215,6 +215,11 @@ class Contention(DeletePreventionMixin, models.Model):
         return round(sign * order + seconds / 45000, 7)
 
     def get_full_url(self):
+        if(settings.PREVENT_LANGUAGE_REDIRECTION):
+            return "http://%(domain)s%(path)s" % {
+                "domain": settings.BASE_DOMAIN,
+                "path": self.get_absolute_url()
+            }
         return "http://%(language)s.%(domain)s%(path)s" % {
             "language": self.language,
             "domain": settings.BASE_DOMAIN,
@@ -606,9 +611,9 @@ class Premise(DeletePreventionMixin, models.Model):
 
         user_reports = set()
         reasons = defaultdict(list)
-    
+
         for report in reports:
-            if (authenticated_user is not None and 
+            if (authenticated_user is not None and
                     report['reporter_id'] == authenticated_user.id):
                 user_reports.add(report['fallacy_type'])
 
