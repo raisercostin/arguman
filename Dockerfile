@@ -7,9 +7,10 @@ RUN apt-get update && \
 WORKDIR /app
 ADD requirements.txt /app/
 RUN pip install -r requirements.txt
-RUN pip install debugpy
 RUN python -m textblob.download_corpora
 
 COPY web/ .
 
 EXPOSE 5678 8000
+
+CMD ["python", "manage.py","runserver","0.0.0.0:8000"]
