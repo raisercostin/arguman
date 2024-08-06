@@ -257,5 +257,5 @@ LOGGING = {
 
 try:
     from settings_local import *
-except ImportError:
-    print "settings_local.py not found!"
+except ImportError as e:
+    print('settings_local.py not found! {}'.format(e))
