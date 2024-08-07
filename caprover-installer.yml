@@ -1,0 +1,343 @@
+captainVersion: 4
+
+services:
+  # $$cap_appname-redis:
+  #   image: redis:latest
+  #   restart: always
+
+  $$cap_appname-mongodb:
+    image: mongo:$$cap_mongo_version
+    volumes:
+      - $$cap_appname-mongodbdb-data:/data/db
+    restart: always
+    # ports:
+    #   - '27017:27017'
+    caproverExtra:
+      notExposeAsWebApp: 'true'
+  $$cap_appname-db:
+    image: postgres:$$cap_POSTGRES_VERSION
+    volumes:
+      - $$cap_appname-db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: $$cap_POSTGRES_DB
+      POSTGRES_PASSWORD: $$cap_POSTGRES_PASSWORD
+      POSTGRES_USER: $$cap_POSTGRES_USER
+    caproverExtra:
+      notExposeAsWebApp: 'true'
+
+  $$cap_appname:
+    #   - $$cap_appname-redis
+    tags:
+      - backend
+      - django
+    depends_on:
+      - $$cap_appname-mongodb
+      - $$cap_appname-db
+    restart: always
+    volumes:
+      - '$$cap_appname-data:/code'
+    # environment2:
+      #https://stackoverflow.com/questions/31746182/docker-compose-wait-for-container-x-before-starting-y
+      ## Add the wait script to the image
+      #to add to docker to wait COPY --from=ghcr.io/ufoscout/docker-compose-wait:latest /wait /wait
+      # WAIT_HOSTS: srv-captain--arg-44-mongodb
+    environment:
+      DEFAULT_FROM_EMAIL: $$cap_email
+      POSTMARK_TOKEN: new_token
+      POSTMARK_API_URL: https://api.postmarkapp.com/email
+      DB_ENGINE: django.db.backends.postgresql_psycopg2
+      DB_NAME: $$cap_POSTGRES_DB
+      DB_USER: $$cap_POSTGRES_USER
+      DB_PASSWORD: $$cap_POSTGRES_PASSWORD
+      DB_HOST: srv-captain--$$cap_appname-db
+      DB_PORT: 5432
+      ALLOWED_HOSTS: "*"
+      # Must be always true to serve static files
+      DEBUG: False
+      SERVER_EMAIL: $$cap_email
+      BASE_DOMAIN: $$cap_appname.$$cap_root_domain
+      MONGODB_HOST: srv-captain--$$cap_appname-mongodb
+      CACHE_BACKEND: redis_cache.cache.RedisCache
+      CACHE_LOCATION: "127.0.0.1:6379:1"
+      PREVENT_LANGUAGE_REDIRECTION: True
+      SECRET_KEY: $$cap_secret_key
+      SITE_URL: $$cap_appname.$$cap_root_domain
+      WAIT_HOSTS: srv-captain--$$cap_appname-mongodb:27017, srv-captain--$$cap_appname-db:5432
+      BLOG_FEED_TITLE: $$cap_appname.$$cap_root_domain Blog
+      BLOG_FEED_DESCRIPTION: Arguman analytical platform
+      BLOG_URL: $$cap_appname.$$cap_root_domain/blog
+      DJANGO_SUPERUSER_USERNAME: $$cap_django_superuser_username
+      DJANGO_SUPERUSER_PASSWORD: $$cap_django_superuser_password
+      STATIC_ROOT: /var/www-$$cap_appname-static/
+      TWITTER_ACCOUNT: $$cap_twitter_account
+      REDDIT_ACCOUNT: $$cap_reddit_account
+      FEEDBACK_URL: $$cap_feedback_url
+      DONATE_URL: $$cap_donation_url
+      CONTACT_EMAIL: $$cap_contact_email
+      GOOGLE_TAG_MANAGER_CODE: $$cap_google_tag_manager_code
+    caproverExtra:
+      #dockerFilepath: arguman/Dockerfile
+      # see https://github.com/caprover/one-click-apps/blob/master/public/v4/apps/pocketbase.yml
+      dockerfileLines:
+        - "# syntax=docker/dockerfile:1.3-labs"
+        - FROM python:2.7-slim
+        - WORKDIR /app
+        # - >-
+        #     CMD gotenberg
+        #     --api-port=$API_PORT
+        #     --api-timeout=$API_TIMEOUT
+        #- RUN echo '#!/bin/bash\nprintenv\nexec /usr/local/bin/gost -L=tcp://:80/$TARGET_SERVER_IP:$TARGET_SERVER_NONSSL_PORT -L=tcp://:443/$TARGET_SERVER_IP:$TARGET_SERVER_SSL_PORT' > /start.sh
+        - >- #when yaml is read this will remove all end of lines from this string. Also all subsequent lines MUST start aligned to RUN (otherwise yml will think it is a new key)
+            RUN apt-get update && apt-get install -y git python-dev
+            build-essential
+            libpq-dev
+            && rm -rf /var/lib/apt/lists/*
+        - >-
+            RUN
+            echo Change this to invalidate cache: v3 &&
+            git clone https://github.com/raisercostin/arguman.git . &&
+            ls -al .
+        - RUN pip install -r requirements.txt
+        - RUN python -m textblob.download_corpora
+        - >-
+          RUN echo "EOL
+          import os EOL
+          # see https://github.com/arguman/arguman.org/blob/master/web/main/settings_local.py.ex EOL
+          # EOL
+          # EOL
+          DATABASES = { EOL
+          'default': { EOL
+          'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql_psycopg2'), EOL
+          'NAME': os.getenv('DB_NAME', '$$cap_POSTGRES_DB'), EOL
+          'USER': os.getenv('DB_USER', '$$cap_POSTGRES_USER'), EOL
+          'PASSWORD': os.getenv('DB_PASSWORD', '$$cap_POSTGRES_PASSWORD'), EOL
+          'HOST': os.getenv('DB_HOST', 'srv-captain--$$cap_appname-db'), EOL
+          'PORT': int(os.getenv('DB_PORT', 5432)), EOL
+          } EOL
+          } EOL
+          # CACHES = { EOL
+          #     'default': { EOL
+          #         'BACKEND': os.getenv('CACHE_BACKEND', 'redis_cache.cache.RedisCache'), EOL
+          #         'LOCATION': 'LOCATION': os.getenv('CACHE_LOCATION', "127.0.0.1:6379:1") EOL
+          #     } EOL
+          # } EOL
+          POSTMARK_TOKEN = os.getenv('POSTMARK_TOKEN', 'xyz') EOL
+          POSTMARK_API_URL = os.getenv('POSTMARK_API_URL', 'https://api.postmarkapp.com/email') EOL
+          ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',') EOL
+          # EOL
+          DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', '$$cap_email') EOL
+          SERVER_EMAIL = os.getenv('SERVER_EMAIL', '$$cap_email') EOL
+          MONGODB_HOST = os.getenv('MONGODB_HOST', 'srv-captain--$$cap_appname-mongodb') #your docker machine ip if running on virtual server EOL
+          BASE_DOMAIN = os.getenv('BASE_DOMAIN', '$$cap_appname.$$cap_root_domain') #your docker machine ip if running on virtual server EOL
+          SECRET_KEY = os.getenv('SECRET_KEY', '$$cap_secret_key') EOL
+          SITE_URL = os.getenv('SITE_URL', '$$cap_appname.$$cap_root_domain') EOL
+          BLOG_FEED_TITLE = os.getenv('BLOG_FEED_TITLE', '$$cap_appname.$$cap_root_domain Blog') EOL
+          BLOG_FEED_DESCRIPTION = os.getenv('BLOG_FEED_DESCRIPTION', 'Arguman analytical platform') EOL
+          BLOG_URL = os.getenv('BLOG_URL', '$$cap_appname.$$cap_root_domain/blog') EOL
+          DJANGO_SUPERUSER_USERNAME = os.getenv('DJANGO_SUPERUSER_USERNAME', '$$cap_django_superuser_username') EOL
+          DJANGO_SUPERUSER_PASSWORD = os.getenv('DJANGO_SUPERUSER_PASSWORD', '$$cap_django_superuser_password') EOL
+          # Static files when debug false - https://django.readthedocs.io/en/1.7.x/howto/static-files/index.html EOL
+          DEBUG = os.getenv('DEBUG', 'false').lower()=='true' EOL
+          #STATIC_ROOT = os.getenv('STATIC_ROOT', '/code/static') # Here would be in volume and able to change from outside. EOL
+          STATIC_ROOT = os.getenv('STATIC_ROOT', '/var/www-$$cap_appname-static/') EOL
+          #Since lang is configured via subhosts we should disable this and let en the only language EOL
+          PREVENT_LANGUAGE_REDIRECTION = os.getenv('PREVENT_LANGUAGE_REDIRECTION', 'false').lower()!='false' EOL
+          REDIRECTED_PATHS = () EOL
+          DEFAULT_LANGUAGE = 'en' EOL
+          AVAILABLE_LANGUAGES = () EOL
+          AVAILABLE_LANGUAGES_WITH_NAMES = () EOL
+          #USE_I18N = False EOL
+          #USE_L10N = False EOL
+          MIDDLEWARE_CLASSES = (
+          'django.contrib.sessions.middleware.SessionMiddleware',
+          'django.middleware.common.CommonMiddleware',
+          'django.middleware.csrf.CsrfViewMiddleware',
+          'django.contrib.auth.middleware.AuthenticationMiddleware',
+          'django.contrib.messages.middleware.MessageMiddleware',
+          'django.middleware.clickjacking.XFrameOptionsMiddleware'EOL
+          #'django.middleware.locale.LocaleMiddleware',  # Ensure this line is commented out or removed EOL
+          #'i18n.middleware.SubdomainLanguageMiddleware', EOL
+          #'i18n.middleware.MultipleProxyMiddleware' EOL
+          ) EOL
+          TWITTER_ACCOUNT = os.getenv('TWITTER_ACCOUNT','$$cap_twitter_account') EOL
+          REDDIT_ACCOUNT = os.getenv('REDDIT_ACCOUNT','$$cap_reddit_account') EOL
+          FEEDBACK_URL = os.getenv('FEEDBACK_URL','$$cap_feedback_url') EOL
+          DONATE_URL = os.getenv('DONATE_URL','$$cap_donation_url') EOL
+          CONTACT_EMAIL = os.getenv('CONTACT_EMAIL','$$cap_contact_email') EOL
+          GOOGLE_TAG_MANAGER_CODE = os.getenv('GOOGLE_TAG_MANAGER_CODE','$$cap_google_tag_manager_code') EOL
+          " |  sed "s/EOL /\n/g" >web/main/settings_local.py # The space after EOL is generated by yaml when process this multiline string
+        #" >web/main/settings_local.py
+        # - RUN echo $full_Script >> settings_local.py
+        - RUN echo settings_local.py is && cat web/main/settings_local.py
+        - ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.5.0/wait /wait
+        - RUN chmod +x /wait
+        #- ENV WAIT_HOSTS=srv-captain--$$cap_appname-mongodb:27017
+        - >-
+          RUN echo "#!/bin/sh EOL
+          /wait EOL
+          # DEBGUT=True will serve static files dynamically. But Will be served also if  `runserver --insecure`
+          #echo DJANGO - python web/manage.py collectstatic --noinput EOL
+          #python web/manage.py collectstatic --noinput EOL
+          echo DJANGO - python web/manage.py migrate EOL
+          python web/manage.py migrate EOL
+          echo disabled because will ask password or will be a disabled user EOL
+          echo DISABLED DJANGO - python web/manage.py createsuperuser --noinput --username=raiser --email=raisercostin@gmail.com EOL
+          echo DJANGO - createsuperuser by using shell: python web/manage.py shell EOL
+          echo \"from django.contrib.auth import get_user_model;import os; User = get_user_model();
+          User.objects.create_superuser(os.getenv('DJANGO_SUPERUSER_USERNAME', '$$cap_django_superuser_username'),
+          '$$cap_django_superuser_email', os.getenv('DJANGO_SUPERUSER_PASSWORD', '$$cap_django_superuser_password'));
+          user = User.objects.get(username='your_superuser_username');
+          user.email = os.getenv('DJANGO_SUPERUSER_USERNAME', '$$cap_django_superuser_username');
+          user.set_password(os.getenv('DJANGO_SUPERUSER_PASSWORD', '$$cap_django_superuser_password'));
+          user.save();
+          \" | python web/manage.py shell EOL
+          echo Run server to serve static files https://stackoverflow.com/questions/5836674/why-does-debug-false-setting-make-my-django-static-files-access-fail EOL
+          echo DJANGO - python web/manage.py runserver --insecure 0.0.0.0:8000 EOL
+          python web/manage.py runserver --insecure 0.0.0.0:8000 EOL
+          " |  sed "s/EOL /\n/g" >runserver.sh && chmod +x runserver.sh
+        # The space after EOL is generated by yaml when process this multiline string
+        - EXPOSE 8000
+        # - RUN /wait
+        # - RUN python web/manage.py migrate
+        #instead of - RUN python web/manage.py createsuperuser --username=raiser --email=raisercostin@gmail.com --verbosity=3 --no-color --noinput
+        #- RUN echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('$$cap_django_superuser_username', '$$cap_django_superuser_email', '$$cap_django_superuser_password')" | python web/manage.py shell
+        #- CMD ["python", "web/manage.py","runserver","0.0.0.0:8000"]
+        #forced success and wait to connect `docker exec -it srv-captain--$$cap_appname`
+        #- CMD ["tail", "-f", "/dev/null"]
+        - CMD ["sh", "./runserver.sh"]
+      containerHttpPort: '8000'
+caproverOneClickApp:
+  variables:
+  - id: $$cap_git_project
+    label: Git Project
+    defaultValue: 'https://github.com/raisercostin/arguman.git'
+    description: |
+      For private repos add the user/token here (ex:https://username:token@github.com/).
+      Get your github token from https://github.com/settings/tokens/new?scopes=repo
+
+      The old one is https://github.com/arguman/arguman.org.git but cannot work without subdomains for languages. This works as english only.
+    validRegex: /.{1,}/
+  - id: $$cap_mongo_version
+    label: MongoDB Version
+    #defaultValue: '4.0.20'
+    #defaultValue: '3.2.3'
+    defaultValue: '3.6'
+    description: Check out their docker page for the valid tags https://hub.docker.com/r/library/mongo/tags/ . Originally 3.2.3 was needed but
+    validRegex: /^([^\s^\/])+$/
+  - id: $$cap_POSTGRES_VERSION
+    label: Version | PostgreSQL
+    description: Version of PostgreSQL. Check out their Docker page for the valid tags https://hub.docker.com/_/postgres/tags
+    defaultValue: 16.3
+    validRegex: /.{1,}/
+  - id: $$cap_POSTGRES_DB
+    label: PostgreSQL | Name
+    description: Name of the database.
+    defaultValue: botpress
+    validRegex: /.{1,}/
+  - id: $$cap_POSTGRES_USER
+    label: PostgreSQL | User
+    description: Name of the database user.
+    defaultValue: botpress
+    validRegex: /.{1,}/
+  - id: $$cap_POSTGRES_PASSWORD
+    label: PostgreSQL | Password
+    description: Password of the database user.
+    defaultValue: $$cap_gen_random_hex(16)
+    validRegex: /.{1,}/
+  # - id: $$cap_POSTGRES_PATH
+  #   label: PostgreSQL | Path
+  #   description: The volume for postgres. If is relative will be a normal volume at (in host at /var/lib/docker/volumes/$$cap_appname-db/_data), if is absolute is in host volume (can be something like /captain/data/$$cap_appname-db). Important for backups.
+  #   defaultValue: ''
+  #   validRegex: /.{1,}/
+  - id: $$cap_secret_key
+    label: Django Secret Key
+    description: Secret key for signing https://docs.djangoproject.com/en/5.0/topics/signing/
+    defaultValue: $$cap_gen_random_hex(64)
+    validRegex: /.{1,}/
+  - id: $$cap_email
+    label: Server Email
+    description: Admin email.
+    defaultValue: ''
+    validRegex: /.{1,}/
+  - id: $$cap_django_superuser_username
+    label: Django Superuser Username
+    description: Superuser - see https://django.readthedocs.io/en/1.7.x/intro/tutorial02.html
+    defaultValue: admin
+    validRegex: /.{1,}/
+  - id: $$cap_django_superuser_email
+    label: Django Superuser Email
+    description: Superuser Email - see https://django.readthedocs.io/en/1.7.x/intro/tutorial02.html
+    defaultValue: ''
+    validRegex: /.{1,}/
+  - id: $$cap_django_superuser_password
+    label: Django Superuser Password
+    description: Superuser Password - see https://django.readthedocs.io/en/1.7.x/intro/tutorial02.html
+    defaultValue: $$cap_gen_random_hex(64)
+    validRegex: /.{1,}/
+  - id: $$cap_twitter_account
+    label: Twitter Account
+    description: Twitter account for the blog (without @)
+    defaultValue: 'argumentmapping'
+    validRegex: /.{1,}/
+  - id: $$cap_reddit_account
+    label: Reddit Account
+    description: Reddit account for the blog (without r/)
+    defaultValue: 'arguman'
+    validRegex: /.{1,}/
+  - id: $$cap_donation_url
+    label: Donation URL
+    description: Donation URL
+    defaultValue: 'https://paypal.me/raisercostin'
+    validRegex: /.{1,}/
+  - id: $$cap_contact_email
+    label: Contact Email
+    defaultValue: ''
+    validRegex: /.{1,}/
+  - id: $$cap_google_tag_manager_code
+    label: Google Tag Manager Code
+    description: See https://tagmanager.google.com
+    defaultValue: 'GTM-NC8TQCMM'
+    validRegex: /.{1,}/
+  - id: $$cap_feedback_url
+    label: Feedback URL
+    defaultValue: 'https://github.com/raisercostin/arguman/issues'
+    validRegex: /.{1,}/
+  instructions:
+    start: >-
+      Arguman is a platform for creating and sharing structured arguments.
+      - Initially it was at https://arguman.org but the english database got lost.
+        - Code: https://github.com/arguman/arguman.org
+      - Now is at https://arguman.namekis.com
+        - Code: https://github.com/raisercostin/arguman
+      Settings documentation at
+        - https://github.com/raisercostin/arguman/blob/master/web/main/settings.py
+        - https://github.com/raisercostin/arguman/blob/master/web/main/settings_local.py.ex
+    end: >-
+      Arguman has been successfully deployed! It might take few moments before it's fully started.
+
+      Django superuser is $$cap_django_superuser_username/$$cap_django_superuser_password at <http://$$cap_appname.$$cap_root_domain/admin/>
+
+      Otherwise you can register a normal user at <http://$$cap_appname.$$cap_root_domain/>
+
+      Aaaand you're done! 😄
+  displayName: Arguman
+  isOfficial: true
+  description: Arguman is a platform for creating and sharing structured arguments.
+  documentation: >-
+    Originaly at https://arguman.org but the english database got lost.
+
+
+
+# {
+#   "captainVersion": "4",
+#   "version": "3.3"
+#   "services": {
+#     "$$cap_appname": {
+#           "image": "adminer:$$cap_adminer_version",
+#           "containerHttpPort": "8080",
+#           "environment": {
+#               "ADMINER_DESIGN": "$$cap_adminer_design"
+#           }
+#     }
+#   }
+# }

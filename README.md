@@ -1,6 +1,8 @@
 ![Argüman](http://arguman.org/static/img/logo.png)
+
 ----
-[arguman.namekis.com](https://arguman.namekis.com) (old and now in turkish only http://arguman.org) is an argument analysis and [mapping](https://www.wikiwand.com/en/Argument_map) platform.
+
+[arguman.namekis.com](https://arguman.namekis.com) (old and now in turkish only <http://arguman.org>) is an argument analysis and [mapping](https://www.wikiwand.com/en/Argument_map) platform.
 
 ## How does it work
 
@@ -15,6 +17,7 @@ Critical thinking is the intellectually disciplined process of actively and skil
 Basis of critical thinking is arguments. Assessment is done over argument, argument premises, promotives, and corruptives.
 
 ## Argument Maps
+
 You can think of argument mappings as visual hierarchy mappings.
 
 Arguman.org’s aim is to map arguments successfully through the efforts of many users.
@@ -22,8 +25,6 @@ Arguman.org’s aim is to map arguments successfully through the efforts of many
 ![](https://raw.githubusercontent.com/arguman/arguman.org/master/argument-map.png)
 Argument mapping is producing "boxes and arrows" diagrams of reasoning, especially complex arguments and debates. Argument mapping improves our ability to articulate, comprehend and communicate reasoning, thereby promoting critical thinking.
 <https://www.wikiwand.com/en/Argument_map>
-
-
 
 ## Who Are We - 2024
 
@@ -65,6 +66,7 @@ Arguman.org is an open source project which developed by community, If you want 
 ### Special Thanks
 
 Also many thanks for intellectual support during development of arguman.org to
+
 - Burak Arıkan
 - Kadir Akkara Yardımcı
 
@@ -86,9 +88,8 @@ For suggestions and complaints, [contact us](https://github.com/arguman/arguman.
 
 If you want to support us for server costs, have questions: see hosted site.
 
-
-
 ## Subreddit
+
 <https://www.reddit.com/r/arguman>
 
 ## License
@@ -101,6 +102,15 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 If you are not sure which method to choose, choose the first one - Docker.
 
+### CapRover
+
+- See <https://caprover.com/docs/docker-compose.html#how-to-run-docker-compose-on-caprover>
+- Use content from `caprover-installer.yml`
+
+### CapRover via 3rd party Repository
+
+- Use https://caprover-apps.namekis.com/ as 3rd party Repository in CapRover
+
 ### Docker
 
 - Fetch repository by `git clone git@github.com:arguman/arguman.org.git`
@@ -112,7 +122,7 @@ If you are not sure which method to choose, choose the first one - Docker.
 ### Vagrant
 
 Go to [Docs: Vagrant Installation](docs/vagrant_installation.md) for details.
- 
+
 ### Manual install
 
 Go to [Docs: Installation](docs/installation.md) for details.
