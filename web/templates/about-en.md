@@ -27,7 +27,7 @@ https://www.wikiwand.com/en/Argument_map
 
 ## Who Are We - 2024
 
-- [Costin Grigore](https://raisercostin.org) - hosting arguman.namekis.com
+- [Costin Grigore](https://raisercostin.org) - hosting <arguman.namekis.com>
 - The arguments between 2014-2021 were lost (or restricted?) and exists now at <https://web.archive.org/web/20190110161554/http://en.arguman.org/> . It could be imported?
 
 ## Who Are We - 2014-2021 - Initial development
