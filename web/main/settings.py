@@ -265,6 +265,10 @@ LOGGING = {
      },
     }
 }
+FEEDBACK_URL = 'https://github.com/fatiherikli/arguman.org/issues'
+DONATE_URL = 'https://paypal.me/arguman'
+CONTACT_EMAIL = 'argumananalizi@gmail.com'
+GOOGLE_TAG_MANAGER_CODE = 'UA-55983865-1'
 
 try:
     from settings_local import *
@@ -272,4 +276,3 @@ except ImportError as e:
     print('settings_local.py not found! {}'.format(e))
 
 LANGUAGE_CODE=DEFAULT_LANGUAGE
-
