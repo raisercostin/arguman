@@ -1,3 +1,4 @@
+# coding=utf-8
 """
 Django settings for arguman project.
 
@@ -110,10 +111,19 @@ AVAILABLE_LANGUAGES = (
     'fr',
     'pl'
 )
-
+AVAILABLE_LANGUAGES_WITH_NAMES = [
+    ('en', 'English'),
+    ('es', 'Español'),
+    ('fr', 'Français'),
+    ('pl', 'Polski'),
+    ('tr', 'Türkçe'),
+    ('ch', '中文'),
+]
 LANGUAGE_CODE_MAPPING = {
     'ch': 'zh-Hans'
 }
+TWITTER_ACCOUNT = 'argumentmapping'
+REDDIT_ACCOUNT = 'arguman'
 
 LANGUAGE_CODE_MAPPING_REVERSED = {
     v.lower(): k for k, v in LANGUAGE_CODE_MAPPING.iteritems()
@@ -174,6 +184,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.static",
     "django.core.context_processors.tz",
     "django.core.context_processors.request",
+    "django.core.context_processors.allsettings",
     "django.contrib.messages.context_processors.messages")
 
 SOCIAL_AUTH_COMPLETE_URL_NAME  = 'socialauth_complete'
@@ -259,3 +270,6 @@ try:
     from settings_local import *
 except ImportError as e:
     print('settings_local.py not found! {}'.format(e))
+
+LANGUAGE_CODE=DEFAULT_LANGUAGE
+

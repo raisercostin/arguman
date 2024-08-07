@@ -49,22 +49,21 @@
             </li>
             <li class="social-links">
                 {% get_current_language as language %}
-                {% trans "Languages:" %}
-                <a {% if language == "en" %}class="active" {% endif %}
-                    href="http://en.arguman.org">English</a>
-                <a {% if language == "es" %}class="active" {% endif %}
-                    href="http://es.arguman.org">Español</a>
-                <a {% if language == "fr" %}class="active" {% endif %}
-                    href="http://fr.arguman.org">{% trans "Français" %}</a>
-                <a {% if language == "pl" %}class="active" {% endif %}
-                    href="http://pl.arguman.org">{% trans "Polski" %}</a>
-                <a {% if language == "tr" %}class="active" {% endif %}
-                    href="http://tr.arguman.org">Türkçe</a>
-                <a {% if language == "zh-hans" %}class="active" {% endif %}
-                    href="http://ch.arguman.org">{% trans "中文" %}</a>
-                <br>
-                {% trans "Follow on twitter:" %} <a href="https://twitter.com/argumentmapping" target="_blank">@argumentmapping</a> <br />
-		        Subreddit: <a href="https://www.reddit.com/r/arguman" target="_blank">/r/arguman</a>
+                {% if allsettings.AVAILABLE_LANGUAGES_WITH_NAMES %}
+                  {% trans "Languages:" %}
+                  {% for lang_code, lang_name in allsettings.AVAILABLE_LANGUAGES_WITH_NAMES %}
+                  <a {% if language == lang_code %}class="active" {% endif %} href="http://{{ lang_code }}.arguman.org">{{ lang_name }}</a>
+                  {% endfor %}
+                  <br>
+                {% endif %}
+
+                {% if allsettings.TWITTER_ACCOUNT %}
+                {% trans "Follow on twitter:" %} <a href="https://x.com/{{ allsettings.TWITTER_ACCOUNT }}" target="_blank">{{ allsettings.TWITTER_ACCOUNT }}</a> <br />
+                {% endif %}
+
+                {% if allsettings.REDDIT_ACCOUNT %}
+                  Subreddit: <a href="https://www.reddit.com/r/{{ allsettings.REDDIT_ACCOUNT }}" target="_blank">/r/{{ allsettings.REDDIT_ACCOUNT }}</a>
+                {% endif %}
             </li>
         </ul>
     </nav>
