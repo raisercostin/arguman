@@ -1,7 +1,6 @@
-![Argüman.org](http://arguman.org/static/img/logo.png)
-![Argüman.org](https://avatars3.githubusercontent.com/u/9404651?s=200&v=4)
+![Argüman](http://arguman.org/static/img/logo.png)
 ----
-[Arguman.org](https://arguman.org) is an argument analysis and [mapping](https://www.wikiwand.com/en/Argument_map) platform.
+[arguman.namekis.com](https://arguman.namekis.com) (old and now in turkish only http://arguman.org) is an argument analysis and [mapping](https://www.wikiwand.com/en/Argument_map) platform.
 
 ## How does it work
 
@@ -22,13 +21,13 @@ Arguman.org’s aim is to map arguments successfully through the efforts of many
 
 ![](https://raw.githubusercontent.com/arguman/arguman.org/master/argument-map.png)
 Argument mapping is producing "boxes and arrows" diagrams of reasoning, especially complex arguments and debates. Argument mapping improves our ability to articulate, comprehend and communicate reasoning, thereby promoting critical thinking.
-https://www.wikiwand.com/en/Argument_map
+<https://www.wikiwand.com/en/Argument_map>
 
 
 
 ## Who Are We - 2024
 
-- [Costin Grigore](https://raisercostin.org) - hosting <arguman.namekis.com>
+- [Costin Grigore](https://raisercostin.org) - hosting <https://arguman.namekis.com>
 - The arguments between 2014-2021 were lost (or restricted?) and exists now at <https://web.archive.org/web/20190110161554/http://en.arguman.org/> . It could be imported?
 
 ## Who Are We - 2014-2021 - Initial development
@@ -83,12 +82,10 @@ For suggestions and complaints, [contact us](https://github.com/arguman/arguman.
 
 - [Galatasaray University Debating Society](http://arguman.org/blog/galatasaray-universitesi-munazara-egitimi-gunlerindeydik/)
 
-### Donations
+### Donations & Contact
 
-If you want to support us for server costs: <br>
-<http://paypal.me/arguman>
+If you want to support us for server costs, have questions: see hosted site.
 
-If you have a general question, a suggestion or some feedback, you can email us: [argumananalizi@gmail.com](mailto:argumananalizi@gmail.com)
 
 
 ## Subreddit
@@ -123,3 +120,5 @@ Go to [Docs: Installation](docs/installation.md) for details.
 ### Contributing
 
 Go to [Contributing documentation](CONTRIBUTING.md) for details on how to contribute code or add new [translations](CONTRIBUTING.md#translations).
+
+![Argüman.org](https://avatars3.githubusercontent.com/u/9404651?s=200&v=4)
