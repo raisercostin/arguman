@@ -12,10 +12,24 @@
     <link rel="icon" type="image/png" href="{% static "img/favicon.png" %}" />
     <link rel="image_src" type="image/png" href="https://arguman.org{% static "img/logo-large.png" %}" />
     <meta property="og:image" content="http://arguman.org{% static "img/logo-large.png" %}"/>
-    <meta name="google-site-verification" content="g-YRAePbSzX5_eMCqQvkkYqecMlQNAIxhRXmeAKMmiQ" />
     {% block extra-meta %}{% endblock %}
+    {% if allsettings.GOOGLE_TAG_MANAGER_CODE %}
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','{{allsettings.GOOGLE_TAG_MANAGER_CODE}}');</script>
+    <!-- End Google Tag Manager -->
+    {% endif %}
 </head>
 <body{% block body-attrs %}{% endblock %}>
+{% if allsettings.GOOGLE_TAG_MANAGER_CODE %}
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{allsettings.GOOGLE_TAG_MANAGER_CODE}}"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+{% endif %}
 {% block header %}
 <header class="container">
     {% if announcements.exists %}
@@ -102,15 +116,5 @@
 <script type="text/javascript" src="{% static "js/lib/hipo.infinity-scroll.js" %}"></script>
 <script type="text/javascript" src="{% static "js/main.js?v=3.2.2" %}"></script>
 {% block extra-scripts %}{% endblock %}
-{% if allsettings.GOOGLE_TAG_MANAGER_CODE %}
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id={{allsettings.GOOGLE_TAG_MANAGER_CODE}}"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', '{{allsettings.GOOGLE_TAG_MANAGER_CODE}}');
-</script>
-{% endif %}
 </body>
 </html>
